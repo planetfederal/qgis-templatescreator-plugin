@@ -1,7 +1,7 @@
 [general]
 name=Print Templates Creator
-description=
-about=<p></p>
+description=Generate Print JSON suitable for using with GeoNode Viewer from QGIS composer layouts
+about=<p>Generate Print JSON suitable for using with GeoNode Viewer from QGIS composer layouts</p>
 category=Plugins
 qgisMinimumVersion=2.0
 version=1.0
@@ -16,8 +16,8 @@ icon=icons/desktop.svg
 tags=boundless
 
 homepage=http://boundlessgeo.com
-tracker=https://github.com/boundlessgeo/qgis-printtemplatescreator-plugin/issues
-repository=https://github.com/boundlessgeo/qgis-printtemplatescreator-plugin
+tracker=https://github.com/boundlessgeo/qgis-templatescreator-plugin/issues
+repository=https://github.com/boundlessgeo/qgis-templatescreator-plugin
 
 experimental=False
 deprecated=False

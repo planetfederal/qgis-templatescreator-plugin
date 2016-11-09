@@ -22,6 +22,24 @@ __copyright__ = '(C) 2016 Boundless, http://boundlessgeo.com'
 
 # This will get replaced with a git SHA1 when you do a git archive
 
+import os
+import webbrowser
+
+from PyQt4.QtCore import (QCoreApplication,
+                          QSettings,
+                          QLocale,
+                          QTranslator
+                         )
+from PyQt4.QtGui import (QAction,
+                         QIcon
+                        )
+
+from qgis.core import QgsApplication
+
+from printtemplatescreator.gui.composersdialog import ComposersDialog
+
+pluginPath = os.path.dirname(__file__)
+
 
 class PrintTemplatesCreator:
     def __init__(self, iface):
@@ -40,17 +58,39 @@ class PrintTemplatesCreator:
         except:
             pass
 
-    def initGui(self):
-        icon = QIcon(os.path.dirname(__file__) + "printtemplatescreator.png")
-        self.action = QAction(icon, "Print Templates Creator", self.iface.mainWindow())
-        self.action.setObjectName("startprinttemplatescreator")
-        self.action.triggered.connect(self.run)
+        overrideLocale = QSettings().value("locale/overrideFlag", False, bool)
+        if not overrideLocale:
+            locale = QLocale.system().name()[:2]
+        else:
+            locale = QSettings().value("locale/userLocale", "")
 
-        helpIcon = QgsApplication.getThemeIcon('/mActionHelpAPI.png')
-        self.helpAction = QAction(helpIcon, "Print Templates Creator Help", self.iface.mainWindow())
-        self.helpAction.setObjectName("printtemplatescreatorHelp")
+        qmPath = "{}/i18n/templatescreator_{}.qm".format(pluginPath, locale)
+
+        if os.path.exists(qmPath):
+            self.translator = QTranslator()
+            self.translator.load(qmPath)
+            QCoreApplication.installTranslator(self.translator)
+
+    def initGui(self):
+        self.runAction = QAction(
+            self.tr("Print templates creator"), self.iface.mainWindow())
+        self.runAction.setIcon(
+            QIcon(os.path.join(pluginPath, "icons", "print.svg")))
+        self.runAction.setWhatsThis(
+            self.tr("Generate Print JSON from QGIS composer layout"))
+        self.runAction.setObjectName("printTemplatesCreatorRun")
+        self.runAction.triggered.connect(self.run)
+
+        self.helpAction = QAction(self.tr("Help"), self.iface.mainWindow())
+        self.helpAction.setIcon(
+            QgsApplication.getThemeIcon('/mActionHelpAPI.png'))
+        self.helpAction.setObjectName("printTemplatesCreatorHelp")
         self.helpAction.triggered.connect(lambda: webbrowser.open_new(
-                        "file://" + os.path.join(os.path.dirname(__file__), "docs", "html", "index.html")))
+                        "file://{}".format(os.path.join(os.path.dirname(__file__), "docs", "html", "index.html"))))
+
+        self.iface.addWebToolBarIcon(self.runAction)
+        self.iface.addPluginToWebMenu(self.tr("Print templates creator"), self.runAction)
+        self.iface.addPluginToWebMenu(self.tr("Print templates creator"), self. helpAction)
 
     def unload(self):
         try:
@@ -60,5 +100,14 @@ class PrintTemplatesCreator:
         except:
             pass
 
+        self.iface.removeWebToolBarIcon(self.runAction)
+        self.iface.removePluginWebMenu(self.tr("Print templates creator"), self.runAction)
+        self.iface.removePluginWebMenu(self.tr("Print templates creator"), self. helpAction)
+
     def run(self):
-        pass
+        dlg = ComposersDialog(self.iface, self.iface.mainWindow())
+        dlg.show()
+        dlg.exec_()
+
+    def tr(self, text):
+        return QCoreApplication.translate('Print Templates Creator', text)
