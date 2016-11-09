@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    __init__.py
+    composersdialog.py
     ---------------------
     Date                 : November 2016
     Copyright            : (C) 2016 Boundless, http://boundlessgeo.com
@@ -29,11 +29,19 @@ import os
 import webbrowser
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, QSettings
-from PyQt4.QtGui import QApplication, QListWidgetItem, QPushButton, QDialogButtonBox, QFileDialog
+from PyQt4.QtCore import Qt, QSettings, QThread
+from PyQt4.QtGui import (QApplication,
+                         QListWidgetItem,
+                         QPushButton,
+                         QDialogButtonBox,
+                         QFileDialog,
+                         QMessageBox
+                        )
 
 from qgis.core import QgsApplication
 from qgis.gui import QgsMessageBar
+
+from printtemplatescreator.templatewriter import TemplateWriter
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 WIDGET, BASE = uic.loadUiType(
@@ -59,6 +67,16 @@ class ComposersDialog(BASE, WIDGET):
 
         #self.buttonBox.helpRequested.connect()
 
+        self.progressBar.hide()
+
+        self.thread = QThread()
+        self.writer = TemplateWriter()
+        self.writer.moveToThread(self.thread)
+        self.writer.finished.connect(self.thread.quit)
+        self.writer.finished.connect(self.exportFinished)
+        self.writer.composerExported.connect(self.updateProgress)
+        self.thread.started.connect(self.writer.export)
+
         self.composers = None
         self.loadComposers()
 
@@ -76,6 +94,18 @@ class ComposersDialog(BASE, WIDGET):
         self.toggleButtons()
 
     def saveToFile(self):
+        selection = self.lstComposers.selectedItems()
+        if len(selection) == 0:
+            QgsMessageBox.warning(self,
+                                  self.tr("No composers selected"),
+                                  self.tr("Please select at least one composer from the list")
+                                 )
+            return
+
+        composers = []
+        for i in selection:
+            composers.append(self.composers[i.text()])
+        
         settings = QSettings("Boundless", "PrintTemplatesCreator")
         lastDirectory = settings.value("lastUsedDirectory", "")
         filePath = QFileDialog.getSaveFileName(self,
@@ -91,16 +121,24 @@ class ComposersDialog(BASE, WIDGET):
 
         settings.setValue("lastUsedDirectory", os.path.abspath(os.path.dirname(filePath)))
 
-        # TODO: export to JSON
+        self.writer.setFilePath(filePath)
+        self.writer.setComposers(composers)
+
+        self.progressBar.show()
+        self.btnSave.setEnabled(False)
+
+        self.thread.start()
 
     def copyToClipboard(self):
-        # TODO: export to JSON
-        clipboard = QApplication.clipboard()
-        clipboard.setText()
-        self.showMessage(self.tr("Selected composers sucessfully exported and copied to clipboard."))
+        pass
 
-    def exportToJson(self, composers):
-        # TODO: export to JSON
+    def updateProgress(self, value):
+        self.progressBar.setValue(value)
+
+    def exportFinished(self):
+        self.btnSave.setEnabled(True)
+        self.progressBar.reset()
+        self.progressBar.hide()
         self.showMessage(self.tr("Selected composers successfully exported and saved."))
 
     def toggleButtons(self):
@@ -112,5 +150,4 @@ class ComposersDialog(BASE, WIDGET):
             #self.btnCopy.setEnabled(True)
 
     def showMessage(self, msg, level=QgsMessageBar.INFO):
-        self.iface.messageBar.pushMessage(
-                msg, level, self.iface.messageTimeout())
+        self.iface.messageBar().pushMessage(msg, level, self.iface.messageTimeout())
