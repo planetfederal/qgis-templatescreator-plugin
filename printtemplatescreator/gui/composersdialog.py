@@ -29,8 +29,8 @@ import os
 import webbrowser
 
 from PyQt4 import uic
-from PyQt4.QtCore import QSettings
-from PyQt4.QtGui import QApplication, QPushButton, QDialogButtonBox, QFileDialog
+from PyQt4.QtCore import Qt, QSettings
+from PyQt4.QtGui import QApplication, QListWidgetItem, QPushButton, QDialogButtonBox, QFileDialog
 
 from qgis.core import QgsApplication
 from qgis.gui import QgsMessageBar
@@ -66,8 +66,13 @@ class ComposersDialog(BASE, WIDGET):
         self.lstComposers.clear()
 
         self.composers = {c.composerWindow().windowTitle(): c for c in  self.iface.activeComposers()}
-        self.lstComposers.addItems(self.composers.keys())
-        self.lstComposers.sortItems()
+        if len(self.composers) > 0:
+            self.lstComposers.addItems(self.composers.keys())
+            self.lstComposers.sortItems()
+        else:
+            item = QListWidgetItem(self.tr("No composers found"))
+            item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
+            self.lstComposers.addItem(item)
         self.toggleButtons()
 
     def saveToFile(self):
