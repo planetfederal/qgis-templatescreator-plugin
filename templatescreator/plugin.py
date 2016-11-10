@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    __init__.py
+    plugin.py
     ---------------------
     Date                 : November 2016
     Copyright            : (C) 2016 Boundless, http://boundlessgeo.com
@@ -36,7 +36,7 @@ from PyQt4.QtGui import (QAction,
 
 from qgis.core import QgsApplication
 
-from printtemplatescreator.gui.composersdialog import ComposersDialog
+from templatescreator.gui.composersdialog import ComposersDialog
 
 pluginPath = os.path.dirname(__file__)
 

@@ -41,7 +41,7 @@ from PyQt4.QtGui import (QApplication,
 from qgis.core import QgsApplication
 from qgis.gui import QgsMessageBar
 
-from printtemplatescreator.templatewriter import TemplateWriter
+from templatescreator.templatewriter import TemplateWriter
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 WIDGET, BASE = uic.loadUiType(

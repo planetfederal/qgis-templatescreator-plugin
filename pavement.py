@@ -17,10 +17,10 @@ import shutil
 
 options(
     plugin = Bunch(
-        name = 'printtemplatescreator',
-        ext_libs = path('printtemplatescreator/ext-libs'),
-        ext_src = path('printtemplatescreator/ext-src'),
-        source_dir = path('printtemplatescreator'),
+        name = 'templatescreator',
+        ext_libs = path('templatescreator/ext-libs'),
+        ext_src = path('templatescreator/ext-src'),
+        source_dir = path('templatescreator'),
         package_dir = path('.'),
         tests = ['test', 'tests'],
         excludes = [
