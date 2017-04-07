@@ -51,13 +51,6 @@ class PrintTemplatesCreator:
         except:
             pass
 
-        try:
-            from lessons import addLessonsFolder
-            folder = os.path.join(os.path.dirname(__file__), "_lessons")
-            addLessonsFolder(folder)
-        except:
-            pass
-
         overrideLocale = QSettings().value("locale/overrideFlag", False, bool)
         if not overrideLocale:
             locale = QLocale.system().name()[:2]
@@ -91,6 +84,13 @@ class PrintTemplatesCreator:
         self.iface.addWebToolBarIcon(self.runAction)
         self.iface.addPluginToWebMenu(self.tr("Print templates creator"), self.runAction)
         self.iface.addPluginToWebMenu(self.tr("Print templates creator"), self. helpAction)
+
+        try:
+            from lessons import addLessonsFolder
+            folder = os.path.join(os.path.dirname(__file__), "_lessons")
+            addLessonsFolder(folder)
+        except:
+            pass
 
     def unload(self):
         try:
