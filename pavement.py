@@ -18,7 +18,7 @@ import shutil
 options(
     plugin = Bunch(
         name = 'templatescreator',
-        ext_libs = path('templatescreator/ext-libs'),
+        ext_libs = path('templatescreator/extlibs'),
         ext_src = path('templatescreator/ext-src'),
         source_dir = path('templatescreator'),
         package_dir = path('.'),
@@ -171,7 +171,7 @@ def pep8(args):
     ignore = ['E203', 'E121', 'E122', 'E123', 'E124', 'E125', 'E126', 'E127',
         'E128', 'E402']
     styleguide = pep8.StyleGuide(ignore=ignore,
-                                 exclude=['*/ext-libs/*', '*/ext-src/*'],
+                                 exclude=['*/extlibs/*', '*/ext-src/*'],
                                  repeat=True, max_line_length=79,
                                  parse_argv=args)
     styleguide.input_dir(options.plugin.source_dir)
