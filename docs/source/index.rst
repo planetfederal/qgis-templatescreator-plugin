@@ -9,8 +9,10 @@ Print Templates Creator QGIS Plugin's documentation
 Documentation contents:
 
 .. toctree::
+   :glob:
    :maxdepth: 2
 
    installation
    usage
+   *
 
